@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  background: #929292;
+  font-family: "Helvetica Neue";
+  margin: 40px auto 40px auto;
+  width: 1280px;
+}
+
+section {
+  background: #fff;
+  box-shadow: 0px 4px 8px rgba(0,0,0,.5);
+  display: none;
+  font-size: 36px;
+  line-height: 1.5em;
+  margin-bottom: 40px;
+  padding: 40px;
+  position: fixed;
+  height: 720px;
+  width: 1200px;
+  -webkit-transform: translate3d(0,0,0);
+}
+
+.active {
+  display: block;
+}
+
+h1 {
+  font-size: 72px;
+  margin-top: 0;
+}
+
+h1.big {
+  position: absolute;
+  top: 300px;
+  left: 600px;
+  font-size: 256px;
+}
+
+</style>
+<body class="overview">
+
+<section>
+  <h1>stack.js</h1>
+
+  <p>A presentation library with intuitive, scroll-based navigation.
+</section>
+
+<section>
+  <h1>Crossfades</h1>
+
+  <p>Pretty transitions, without gimmicks or distraction.
+  <br>The point is, after all, <b>your talk</b> and not the presentation software.
+
+  <p>Sneak a peek at the next slide by scrolling down and back.
+</section>
+
+<section data-src="alert.html">
+  <h1 style="position:absolute;bottom:0;">PEEK-A-BO! I see you!</h1>
+</section>
+
+<section>
+  <h1>Scroll-Happy</h1>
+
+  <p>Scroll many slides at once with a flick of the wrist.
+</section>
+
+<section>
+  <h1 class="big">9</h1>
+</section>
+
+<section>
+  <h1 class="big">8</h1>
+</section>
+
+<section>
+  <h1 class="big">7</h1>
+</section>
+
+<section>
+  <h1 class="big">6</h1>
+</section>
+
+<section>
+  <h1 class="big">5</h1>
+</section>
+
+<section>
+  <h1 class="big">4</h1>
+</section>
+
+<section>
+  <h1 class="big">3</h1>
+</section>
+
+<section>
+  <h1 class="big">2</h1>
+</section>
+
+<section>
+  <h1 class="big">1</h1>
+</section>
+
+<section>
+  <h1>Snap-to Scrolling [to-do]</h1>
+
+  <p>If you stop between slides, the stack will drift to the closest slide.
+</section>
+
+<section>
+  <h1>Edge Detection [to-do]</h1>
+
+  <p>If you scroll up, the previous slide is immediately visible.
+  <br>If you scroll down, the next slide is immediately visible.
+  <p>(This would be a lot easier if WebKit supported touch!)
+</section>
+
+<section>
+  <h1>More Features! [to-do]</h1>
+
+  <p>Zoom-out overview.
+  <p>Anchor fragments.
+  <p>Auto-loading iframes for resource-expensive slides.
+  <p>iOS & Firefox testing.
+</section>
+
+<script src="d3.js"></script>
+<script>
+
+var section = d3.selectAll("section"),
+    self = d3.select(window),
+    timeout,
+    padding = 40,
+    size = 800,
+    snapping,
+    n = section[0].length;
+
+d3.select("body").style("height", n * size + (n - 1) * padding + "px");
+self.on("scroll", scroll);
+scroll();
+
+section.style("z-index", function(d, i) { return n - i; });
+
+function scroll() {
+  var y = document.body.scrollTop / (size + padding),
+      dy = Math.min(1.1, (y % 1) * 2),
+      i = Math.max(0, Math.min(n, Math.floor(y)));
+
+  var prev = d3.select(section[0][i]),
+      next = d3.select(section[0][i + 1]);
+
+  section
+      .classed("active", false);
+
+  prev
+      .style("-webkit-transform", "translate3d(0," + (-dy * size) + "px,0)")
+      .style("opacity", null)
+      .classed("active", true);
+
+  next
+      .style("-webkit-transform", null)
+      .style("opacity", dy)
+      .classed("active", true);
+
+  if (timeout) clearTimeout(timeout);
+  if (!snapping) timeout = setTimeout(snap, 500);
+  snapping = false;
+}
+
+function snap() {
+  var y = document.body.scrollTop / (size + padding),
+      dy = Math.min(1.1, (y % 1) * 2);
+
+//   snapping = true;
+//   document.body.scrollTop += 50;
+}
+
+</script>
