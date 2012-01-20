@@ -18,8 +18,11 @@ resize();
 section.style("z-index", function(d, i) { return n - i; });
 
 function resize() {
+  var offset = (window.innerHeight - size) / 2;
+
   d3.select("body")
-      .style("margin-top", (window.innerHeight - size) / 2 + "px")
+      .style("margin-top", offset + "px")
+      .style("margin-bottom", offset + "px")
       .style("height", (n - .5) * size + n * padding + "px");
 }
 
