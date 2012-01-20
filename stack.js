@@ -8,11 +8,20 @@ var section = d3.selectAll("section"),
     snapping,
     n = section[0].length;
 
-d3.select("body").style("height", n * size + (n - 1) * padding + "px");
-self.on("scroll", scroll);
+self
+    .on("scroll", scroll)
+    .on("resize", resize);
+
 scroll();
+resize();
 
 section.style("z-index", function(d, i) { return n - i; });
+
+function resize() {
+  d3.select("body")
+      .style("margin-top", (window.innerHeight - size) / 2 + "px")
+      .style("height", (n - .5) * size + n * padding + "px");
+}
 
 function scroll() {
   var y = (document.documentElement.scrollTop || document.body.scrollTop) / (size + padding),
