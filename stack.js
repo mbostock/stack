@@ -3,32 +3,34 @@
 var section = d3.selectAll("section"),
     self = d3.select(window),
     timeout,
-    padding = 40,
     size = 800,
     snapping,
+    max,
     n = section[0].length;
 
 self
-    .on("scroll", scroll)
-    .on("resize", resize);
+    .on("resize", resize)
+    .on("scroll", scroll);
 
-scroll();
 resize();
+scroll();
 
 section.style("z-index", function(d, i) { return n - i; });
 
 function resize() {
   var offset = (window.innerHeight - size) / 2;
 
+  max = 1 + offset / size;
+
   d3.select("body")
       .style("margin-top", offset + "px")
       .style("margin-bottom", offset + "px")
-      .style("height", (n - .5) * size + n * padding + "px");
+      .style("height", (n - .5) * size + offset + "px");
 }
 
 function scroll() {
-  var y = (document.documentElement.scrollTop || document.body.scrollTop) / (size + padding),
-      dy = Math.min(1.1, (y % 1) * 2),
+  var y = (document.documentElement.scrollTop || document.body.scrollTop) / size,
+      dy = Math.min(max, (y % 1) * 2),
       i = Math.max(0, Math.min(n, Math.floor(y)));
 
   var prev = d3.select(section[0][i]),
@@ -41,7 +43,7 @@ function scroll() {
       .style("-webkit-transform", "translate3d(0," + (-dy * size) + "px,0)")
       .style("-moz-transform", "translate(0," + (-dy * size) + "px)")
       .style("opacity", null)
-      .classed("active", true);
+      .classed("active", dy != max);
 
   next
       .style("-webkit-transform", null)
@@ -55,8 +57,8 @@ function scroll() {
 }
 
 function snap() {
-  var y = document.body.scrollTop / (size + padding),
-      dy = Math.min(1.1, (y % 1) * 2);
+  var y = document.body.scrollTop / size,
+      dy = Math.min(max, (y % 1) * 2);
 
 //   snapping = true;
 //   document.body.scrollTop += 50;
