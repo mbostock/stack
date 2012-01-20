@@ -15,7 +15,7 @@ scroll();
 section.style("z-index", function(d, i) { return n - i; });
 
 function scroll() {
-  var y = document.body.scrollTop / (size + padding),
+  var y = (document.documentElement.scrollTop || document.body.scrollTop) / (size + padding),
       dy = Math.min(1.1, (y % 1) * 2),
       i = Math.max(0, Math.min(n, Math.floor(y)));
 
@@ -27,11 +27,13 @@ function scroll() {
 
   prev
       .style("-webkit-transform", "translate3d(0," + (-dy * size) + "px,0)")
+      .style("-moz-transform", "translate(0," + (-dy * size) + "px)")
       .style("opacity", null)
       .classed("active", true);
 
   next
       .style("-webkit-transform", null)
+      .style("-moz-transform", null)
       .style("opacity", dy)
       .classed("active", true);
 
