@@ -13,23 +13,24 @@ a:not(:hover) {
   text-decoration: none;
 }
 
-section {
-  display: none;
-}
-
-.active {
+.stack {
   background: #fff;
   box-shadow: 0px 4px 8px rgba(0,0,0,.5);
-  display: block;
+  display: none;
   font-size: 36px;
+  height: 720px;
   line-height: 1.5em;
   margin-bottom: 40px;
   padding: 40px;
-  position: fixed;
-  height: 720px;
   width: 1200px;
   -webkit-transform: translate3d(0,0,0);
 }
+
+.active {
+  display: block;
+  position: fixed;
+}
+
 
 h1 {
   font-size: 72px;
@@ -40,4 +41,15 @@ h1 {
   text-align: center;
   margin-top: 300px;
   font-size: 256px;
+}
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px),
+@media only screen and (max-device-width: 480px) {
+  body {
+    margin: 40px auto 0 auto;
+  }
+
+  .stack {
+    display: block;
+  }
 }
