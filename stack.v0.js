@@ -6,7 +6,6 @@ var stack = (function() {
       timeout,
       duration = 750,
       size = 800,
-      snapping,
       offset,
       max,
       n = section[0].length;
@@ -20,6 +19,31 @@ var stack = (function() {
       .classed("stack", true)
       .style("z-index", function(d, i) { return n - i; });
 
+  stack.position = function(x1, free) {
+    if (arguments.length < 1) return root.scrollTop / size;
+    var x0 = root.scrollTop / size;
+
+    // clamp
+    if (x1 >= section[0].length) x1 = section[0].length - 1;
+    else if (x1 < 0) x1 = Math.max(0, section[0].length + x1);
+
+    // round
+    if (!free) {
+      x1 = Math.floor(x1);
+      if (x1 > x0) x1 -= .49 - offset / size / 2;
+    }
+
+    if (x0 - x1) {
+      self.on("scroll.stack", null);
+      d3.select(root).transition()
+          .duration(duration)
+          .tween("scrollTop", tween(x1))
+          .each("end", function() { self.on("scroll.stack", scroll); });
+    }
+
+    return stack;
+  };
+
   // TODO Do something magical with touch events.
   if (section.style("display") == "block") return;
 
@@ -29,19 +53,6 @@ var stack = (function() {
 
   resize();
   scroll();
-
-  stack.position = function(x1) {
-    if (arguments.length < 1) return root.scrollTop / size;
-
-    x1 = Math.floor(x1);
-    if (x1 >= section[0].length) x1 = section[0].length - 1;
-    else if (x1 < 0) x1 = Math.max(0, section[0].length + x1);
-    var x0 = root.scrollTop / size;
-    if (x1 > x0) x1 -= .49 - offset / size / 2;
-
-    d3.select(root).transition().duration(duration).tween("scrollTop", tween(x1));
-    return stack;
-  };
 
   function resize() {
     offset = (window.innerHeight - size) / 2;
@@ -77,21 +88,23 @@ var stack = (function() {
         .classed("active", true);
 
     if (timeout) clearTimeout(timeout);
-    if (!snapping) timeout = setTimeout(snap, 500);
-    snapping = false;
+    timeout = setTimeout(snap, 500);
   }
 
   function snap() {
-//     var y = root.scrollTop / size,
-//         dy = Math.min(max, (y % 1) * 2);
-  //   snapping = true;
-  //   document.body.scrollTop += 50;
+    var x0 = stack.position(),
+        x1 = Math.round(x0 + .25),
+        x2 = .49 - offset / size / 2;
+    if (x1 > x0 && x1 - x0 < x2) return;
+    if (x1 < x0) x1 -= x2;
+    if (x1 < 0) x1 = 0;
+    stack.position(x1, true);
   }
 
   function tween(x) {
     return function() {
       var i = d3.interpolateNumber(this.scrollTop, x * size);
-      return function(t) { this.scrollTop = i(t); };
+      return function(t) { this.scrollTop = i(t); scroll(); };
     };
   }
 
