@@ -43,10 +43,12 @@ h1 {
   font-size: 256px;
 }
 
-@media only screen and (min-device-width: 768px) and (max-device-width: 1024px),
-@media only screen and (max-device-width: 480px) {
+@media
+screen and (-webkit-min-device-pixel-ratio: 2),
+screen and (min-device-width: 768px) and (max-device-width: 1024px),
+screen and (max-device-width: 480px) {
   body {
-    margin: 40px auto 0 auto;
+    margin: 40px auto 40px auto;
   }
 
   .stack {

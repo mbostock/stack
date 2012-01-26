@@ -7,6 +7,7 @@ var stack = (function() {
       duration = 750,
       size,
       position,
+      snapped,
       offset,
       max,
       n = section[0].length;
@@ -49,6 +50,7 @@ var stack = (function() {
   if (section.style("display") == "block") return;
 
   self
+      .on("keydown.stack", keydown)
       .on("resize.stack", resize)
       .on("scroll.stack", scroll);
 
@@ -65,11 +67,27 @@ var stack = (function() {
         .style("height", (n - .5) * size + offset + "px");
   }
 
+  function keydown() {
+    if (d3.event.metaKey) return;
+    var delta;
+    switch (d3.event.keyCode) {
+      case 40: case 34: case 39: delta = 1; break;
+      case 38: case 33: case 37: delta = -1; break;
+      case 32: delta = d3.event.shiftKey ? -1 : 1; break;
+      default: return;
+    }
+    stack.position(position = Math.max(position + delta, 0));
+    d3.event.preventDefault();
+  }
+
   function scroll() {
     var y = root.scrollTop / size;
 
     // if scrolling up, jump to edge of previous slide
-    if (!(position % 1) && (y < position)) return root.scrollTop = (position -= .5 - offset / size / 2) * size;
+    if (snapped && (y < position)) {
+      snapped = false;
+      return root.scrollTop = (position - .5 - offset / size / 2) * size;
+    }
 
     var dy = Math.min(max, (y % 1) * 2),
         i = Math.max(0, Math.min(n, Math.floor(y))),
@@ -99,11 +117,11 @@ var stack = (function() {
     var x0 = stack.position(),
         x1 = position = Math.max(0, Math.round(x0 + .25));
 
-    // immediate jump if the previous slide is not visible
-    if (x1 > x0 && x1 - x0 < .5 - offset / size / 2) return root.scrollTop = x1 * size;
+    // immediate jump if the previous slide is not visible; else transition
+    if (x1 > x0 && x1 - x0 < .5 - offset / size / 2) root.scrollTop = x1 * size;
+    else stack.position(x1);
 
-    // otherwise, smooth transition
-    stack.position(x1);
+    snapped = true;
   }
 
   function tween(x) {
