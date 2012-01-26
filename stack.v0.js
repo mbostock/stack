@@ -84,7 +84,7 @@ var stack = (function() {
       break;
       default: return;
     }
-    if (yTarget == null) yTarget = yFloor;
+    if (yTarget == null) yTarget = Math.round(yActual + .25);
     stack.position(yTarget = Math.max(0, Math.min(n - 1, yTarget + delta)));
     d3.event.preventDefault();
   }
