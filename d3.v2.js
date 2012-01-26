@@ -10,7 +10,7 @@ try {
     d3_style_setProperty.call(this, name, value + "", priority);
   };
 }
-d3 = {version: "2.7.2"}; // semver
+d3 = {version: "2.7.3"}; // semver
 var d3_array = d3_arraySlice; // conversion for NodeLists
 
 function d3_arrayCopy(pseudoarray) {
@@ -419,7 +419,7 @@ d3.requote = function(s) {
 var d3_requote_re = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
 d3.round = function(x, n) {
   return n
-      ? Math.round(x * Math.pow(10, n)) * Math.pow(10, -n)
+      ? Math.round(x * (n = Math.pow(10, n))) / n
       : Math.round(x);
 };
 d3.xhr = function(url, mime, callback) {
@@ -2145,7 +2145,7 @@ d3_transitionPrototype.text = function(value) {
   });
 };
 d3_transitionPrototype.remove = function() {
-  return this.each("end", function() {
+  return this.each("end.transition", function() {
     var p;
     if (!this.__transition__ && (p = this.parentNode)) p.removeChild(this);
   });
@@ -4022,8 +4022,8 @@ d3.svg.brush = function() {
 
     g.each(function() {
       var g = d3.select(this).on("mousedown.brush", down),
-          bg = g.selectAll(".background").data([,]),
-          fg = g.selectAll(".extent").data([,]),
+          bg = g.selectAll(".background").data([0]),
+          fg = g.selectAll(".extent").data([0]),
           tz = g.selectAll(".resize").data(resizes, String),
           e;
 
@@ -4045,8 +4045,10 @@ d3.svg.brush = function() {
           .attr("width", 6)
           .attr("height", 6)
           .style("visibility", "hidden")
-          .style("pointer-events", brush.empty() ? "none" : "all")
           .style("cursor", function(d) { return d3_svg_brushCursor[d]; });
+
+      // Update the resizers.
+      tz.style("pointer-events", brush.empty() ? "none" : "all");
 
       // Remove any superfluous resizers.
       tz.exit().remove();

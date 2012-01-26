@@ -90,7 +90,7 @@ var stack = (function() {
   }
 
   function scroll() {
-    var yNew = root.scrollTop / size;
+    var yNew = Math.max(0, root.scrollTop / size);
 
     // if scrolling up, jump to edge of previous slide
     if ((yActual == yFloor) && (yNew < yActual)) {
@@ -101,7 +101,6 @@ var stack = (function() {
 
     yActual = yNew;
     yFloor = Math.max(0, Math.min(n, Math.floor(yActual)));
-
     var yError = Math.min(yMax, (yActual % 1) * 2);
 
     section
@@ -127,8 +126,13 @@ var stack = (function() {
     var y0 = stack.position(),
         y1 = Math.max(0, Math.round(y0 + .25));
 
-    // immediate jump if the previous slide is not visible; else transition
+    // if we're before the first slide, or after the last slide, do nothing
+    if (y0 <= 0 || y0 >= n - 1.5) return;
+
+    // if the previous slide is not visible, immediate jump
     if (y1 > y0 && y1 - y0 < .5 - yOffset / size / 2) root.scrollTop = y1 * size;
+
+    // else transition
     else stack.position(y1);
 
     snapped = true;
