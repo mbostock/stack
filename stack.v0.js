@@ -6,10 +6,11 @@ var stack = (function() {
       timeout,
       duration = 750,
       size,
-      position,
-      snapped,
-      offset,
-      max,
+      yActual,
+      yFloor,
+      yTarget,
+      yMax,
+      yOffset,
       n = section[0].length;
 
   // Detect whether to scroll with documentElement or body.
@@ -26,27 +27,27 @@ var stack = (function() {
   section.classed("active", false);
 
   // Sets the stack position.
-  stack.position = function(x1) {
-    if (arguments.length < 1) return root.scrollTop / size;
-    var x0 = root.scrollTop / size;
+  stack.position = function(y1) {
+    var y0 = root.scrollTop / size;
+    if (arguments.length < 1) return y0;
 
     // clamp and round
-    if (x1 >= section[0].length) x1 = section[0].length - 1;
-    else if (x1 < 0) x1 = Math.max(0, section[0].length + x1);
-    x1 = Math.floor(x1);
+    if (y1 >= n) y1 = n - 1;
+    else if (y1 < 0) y1 = Math.max(0, n + y1);
+    y1 = Math.floor(y1);
 
-    if (x0 - x1) {
+    if (y0 - y1) {
       self.on("scroll.stack", null);
       d3.select(root).transition()
           .duration(duration)
-          .tween("scrollTop", tween(x1))
-          .each("end", function() { self.on("scroll.stack", scroll); });
+          .tween("scrollTop", tween(y1))
+          .each("end", function() { yTarget = null; self.on("scroll.stack", scroll); });
     }
 
     return stack;
   };
 
-  // TODO Do something magical with touch events.
+  // Don't do anything fancy for iOS.
   if (section.style("display") == "block") return;
 
   self
@@ -58,55 +59,64 @@ var stack = (function() {
   scroll();
 
   function resize() {
-    offset = (window.innerHeight - size) / 2;
-    max = 1 + offset / size;
+    yOffset = (window.innerHeight - size) / 2;
+    yMax = 1 + yOffset / size;
 
     d3.select("body")
-        .style("margin-top", offset + "px")
-        .style("margin-bottom", offset + "px")
-        .style("height", (n - .5) * size + offset + "px");
+        .style("margin-top", yOffset + "px")
+        .style("margin-bottom", yOffset + "px")
+        .style("height", (n - .5) * size + yOffset + "px");
   }
 
   function keydown() {
-    if (d3.event.metaKey) return;
     var delta;
     switch (d3.event.keyCode) {
-      case 40: case 34: case 39: delta = 1; break;
-      case 38: case 33: case 37: delta = -1; break;
-      case 32: delta = d3.event.shiftKey ? -1 : 1; break;
+      case 40: // down arrow
+      case 34: // page down
+      case 39: // right arrow
+      delta = d3.event.metaKey ? Infinity : 1; break;
+      case 38: // up arrow
+      case 33: // page up
+      case 37: // left arrow
+      delta = d3.event.metaKey ? -Infinity : -1; break;
+      case 32: // space
+      delta = d3.event.shiftKey ? -1 : 1;
+      break;
       default: return;
     }
-    stack.position(position = Math.max(position + delta, 0));
+    if (yTarget == null) yTarget = yFloor;
+    stack.position(yTarget = Math.max(0, Math.min(n - 1, yTarget + delta)));
     d3.event.preventDefault();
   }
 
   function scroll() {
-    var y = root.scrollTop / size;
+    var yNew = root.scrollTop / size;
 
     // if scrolling up, jump to edge of previous slide
-    if (snapped && (y < position)) {
-      snapped = false;
-      return root.scrollTop = (position - .5 - offset / size / 2) * size;
+    if ((yActual == yFloor) && (yNew < yActual)) {
+      yFloor--;
+      yActual -= .5 - yOffset / size / 2;
+      return root.scrollTop = yActual * size;
     }
 
-    var dy = Math.min(max, (y % 1) * 2),
-        i = Math.max(0, Math.min(n, Math.floor(y))),
-        prev = d3.select(section[0][i]),
-        next = d3.select(section[0][i + 1]);
+    yActual = yNew;
+    yFloor = Math.max(0, Math.min(n, Math.floor(yActual)));
+
+    var yError = Math.min(yMax, (yActual % 1) * 2);
 
     section
         .classed("active", false);
 
-    prev
-        .style("-webkit-transform", "translate3d(0," + (-dy * size) + "px,0)")
-        .style("-moz-transform", "translate(0," + (-dy * size) + "px)")
+    d3.select(section[0][yFloor])
+        .style("-webkit-transform", "translate3d(0," + (-yError * size) + "px,0)")
+        .style("-moz-transform", "translate(0," + (-yError * size) + "px)")
         .style("opacity", null)
-        .classed("active", dy != max);
+        .classed("active", yError != yMax);
 
-    next
+    d3.select(section[0][yFloor + 1])
         .style("-webkit-transform", null)
         .style("-moz-transform", null)
-        .style("opacity", dy)
+        .style("opacity", yError)
         .classed("active", true);
 
     if (timeout) clearTimeout(timeout);
@@ -114,19 +124,19 @@ var stack = (function() {
   }
 
   function snap() {
-    var x0 = stack.position(),
-        x1 = position = Math.max(0, Math.round(x0 + .25));
+    var y0 = stack.position(),
+        y1 = Math.max(0, Math.round(y0 + .25));
 
     // immediate jump if the previous slide is not visible; else transition
-    if (x1 > x0 && x1 - x0 < .5 - offset / size / 2) root.scrollTop = x1 * size;
-    else stack.position(x1);
+    if (y1 > y0 && y1 - y0 < .5 - yOffset / size / 2) root.scrollTop = y1 * size;
+    else stack.position(y1);
 
     snapped = true;
   }
 
-  function tween(x) {
+  function tween(y) {
     return function() {
-      var i = d3.interpolateNumber(this.scrollTop, x * size);
+      var i = d3.interpolateNumber(this.scrollTop, y * size);
       return function(t) { this.scrollTop = i(t); scroll(); };
     };
   }
