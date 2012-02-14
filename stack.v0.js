@@ -127,10 +127,10 @@ var stack = (function() {
         y1 = Math.max(0, Math.round(y0 + .25));
 
     // if we're before the first slide, or after the last slide, do nothing
-    if (y0 <= 0 || y0 >= n - 1.5) return;
+    if (y0 <= 0 || y0 >= n - 1.5 + yOffset / size) return;
 
     // if the previous slide is not visible, immediate jump
-    if (y1 > y0 && y1 - y0 < .5 - yOffset / size / 2) root.scrollTop = y1 * size;
+    if (y1 > y0 && y1 - y0 < .5 - yOffset / size) root.scrollTop = y1 * size;
 
     // else transition
     else stack.position(y1);
