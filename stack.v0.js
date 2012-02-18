@@ -71,13 +71,15 @@ var stack = (function() {
   function keydown() {
     var delta;
     switch (d3.event.keyCode) {
+      case 39: // right arrow
+      if (d3.event.metaKey) return;
       case 40: // down arrow
       case 34: // page down
-      case 39: // right arrow
       delta = d3.event.metaKey ? Infinity : 1; break;
+      case 37: // left arrow
+      if (d3.event.metaKey) return;
       case 38: // up arrow
       case 33: // page up
-      case 37: // left arrow
       delta = d3.event.metaKey ? -Infinity : -1; break;
       case 32: // space
       delta = d3.event.shiftKey ? -1 : 1;
