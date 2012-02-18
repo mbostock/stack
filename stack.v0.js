@@ -118,7 +118,7 @@ var stack = (function() {
         .style("-webkit-transform", null)
         .style("-moz-transform", null)
         .style("opacity", yError)
-        .classed("active", true);
+        .classed("active", yError > 0);
 
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(snap, 250);
