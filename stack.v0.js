@@ -2,7 +2,8 @@ var stack = (function() {
   var stack = {},
       section = d3.selectAll("section"),
       self = d3.select(window),
-      root = document.body,
+      body = document.body,
+      root = body,
       timeout,
       duration = 750,
       size,
@@ -14,9 +15,11 @@ var stack = (function() {
       n = section[0].length;
 
   // Detect whether to scroll with documentElement or body.
-  root.scrollTop = 1;
-  if (!root.scrollTop) root = document.documentElement;
-  else root.scrollTop = 0;
+  body.style.height = window.innerHeight + 1 + "px";
+  body.scrollTop = 1;
+  if (!body.scrollTop) root = document.documentElement;
+  else body.scrollTop = 0;
+  body.style.height = "auto";
 
   // Invert the z-index so the earliest slides are on top.
   section.classed("stack", true).style("z-index", function(d, i) { return n - i; });
