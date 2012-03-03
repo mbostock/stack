@@ -41,6 +41,7 @@ var stack = (function() {
 
     if (y0 - y1) {
       self.on("scroll.stack", null);
+      leap(y1);
       d3.select(root).transition()
           .duration(duration)
           .tween("scrollTop", tween(y1))
@@ -60,6 +61,16 @@ var stack = (function() {
 
   resize();
   scroll();
+
+  // if scrolling up, jump to edge of previous slide
+  function leap(yNew) {
+    if ((yActual == yFloor) && (yNew < yActual)) {
+      yFloor--;
+      yActual -= .5 - yOffset / size / 2;
+      root.scrollTop = yActual * size;
+      return true;
+    }
+  }
 
   function resize() {
     yOffset = (window.innerHeight - size) / 2;
@@ -99,11 +110,7 @@ var stack = (function() {
     var yNew = Math.max(0, root.scrollTop / size);
 
     // if scrolling up, jump to edge of previous slide
-    if ((yActual == yFloor) && (yNew < yActual)) {
-      yFloor--;
-      yActual -= .5 - yOffset / size / 2;
-      return root.scrollTop = yActual * size;
-    }
+    if (leap(yNew)) return;
 
     yActual = yNew;
     yFloor = Math.max(0, Math.min(n, Math.floor(yActual)));
