@@ -90,7 +90,7 @@ var stack = (function() {
       default: return;
     }
     if (timeout) timeout = clearTimeout(timeout);
-    if (yTarget == null) yTarget = Math.round(yActual + .25);
+    if (yTarget == null) yTarget = (delta > 0 ? Math.floor : Math.ceil)(yActual);
     stack.position(yTarget = Math.max(0, Math.min(n - 1, yTarget + delta)));
     d3.event.preventDefault();
   }
