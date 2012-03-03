@@ -122,13 +122,11 @@ var stack = (function() {
     d3.select(section[0][yFloor])
         .style("-webkit-transform", "translate3d(0," + (-yError * size) + "px,0)")
         .style("-moz-transform", "translate(0," + (-yError * size) + "px)")
-        .style("opacity", null)
         .classed("active", yError != yMax);
 
     d3.select(section[0][yFloor + 1])
         .style("-webkit-transform", null)
         .style("-moz-transform", null)
-        .style("opacity", yError)
         .classed("active", yError > 0);
 
     if (timeout) clearTimeout(timeout);
