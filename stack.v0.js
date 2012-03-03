@@ -6,6 +6,8 @@ var stack = (function() {
       root = body,
       timeout,
       duration = 750,
+      screenX,
+      screenY,
       size,
       yActual,
       yFloor,
@@ -44,7 +46,7 @@ var stack = (function() {
       leap(y1);
       d3.select(root).transition()
           .duration(duration)
-          .tween("scrollTop", tween(y1))
+          .tween("scrollTop", tween(yTarget = y1))
           .each("end", function() { yTarget = null; self.on("scroll.stack", scroll); });
     }
 
@@ -57,7 +59,8 @@ var stack = (function() {
   self
       .on("keydown.stack", keydown)
       .on("resize.stack", resize)
-      .on("scroll.stack", scroll);
+      .on("scroll.stack", scroll)
+      .on("mousemove.stack", snap);
 
   resize();
   scroll();
@@ -128,12 +131,15 @@ var stack = (function() {
         .style("-webkit-transform", null)
         .style("-moz-transform", null)
         .classed("active", yError > 0);
-
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(snap, 250);
   }
 
   function snap() {
+    var x = d3.event.screenX, y = d3.event.screenY;
+    if (x === screenX && y === screenY) return; // ignore move on scroll
+    screenX = x, screenY = y;
+
+    if (yTarget != null) return; // don't snap if already snapping
+
     var y0 = stack.position(),
         y1 = Math.max(0, Math.round(y0 + .25));
 
@@ -145,8 +151,6 @@ var stack = (function() {
 
     // else transition
     else stack.position(y1);
-
-    snapped = true;
   }
 
   function tween(y) {
