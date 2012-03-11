@@ -104,7 +104,7 @@ var stack = (function() {
       default: return;
     }
     if (timeout) timeout = clearTimeout(timeout);
-    if (yTarget == null) yTarget = (delta > 0 ? Math.floor : Math.ceil)(yActual + (.5 - yOffset / size / 2));
+    if (yTarget == null) yTarget = (delta > 0 ? Math.floor : Math.ceil)(yActual == yFloor ? yFloor : yActual + (.5 - yOffset / size / 2));
     stack.position(yTarget = Math.max(0, Math.min(n - 1, yTarget + delta)));
     d3.event.preventDefault();
   }
