@@ -131,9 +131,9 @@ var stack = (function() {
 
     d3.select(section[0][yFloor + 1])
         .style("-webkit-transform", yError ? "translate3d(0,0,0)" : null)
-        .style("-o-transform", yError ? "translate(0,0,0)" : null)
-        .style("-moz-transform", yError ? "translate(0,0,0)" : null)
-        .style("transform", yError ? "translate(0,0,0)" : null)
+        .style("-o-transform", yError ? "translate(0,0)" : null)
+        .style("-moz-transform", yError ? "translate(0,0)" : null)
+        .style("transform", yError ? "translate(0,0)" : null)
         .classed("active", yError > 0);
   }
 
