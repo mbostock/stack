@@ -111,12 +111,13 @@ var stack = (function() {
 
   function scroll() {
     var yNew = Math.max(0, root.scrollTop / size);
+    if (yNew >= n - 1.51 + yOffset / size) yNew = n - 1;
 
     // if scrolling up, jump to edge of previous slide
     if (leap(yNew)) return;
 
     yActual = yNew;
-    yFloor = Math.max(0, Math.min(n, Math.floor(yActual)));
+    yFloor = Math.max(0, Math.floor(yActual));
     var yError = Math.min(yMax, (yActual % 1) * 2);
 
     section
@@ -148,7 +149,7 @@ var stack = (function() {
         y1 = Math.max(0, Math.round(y0 + .25));
 
     // if we're before the first slide, or after the last slide, do nothing
-    if (y0 <= 0 || y0 >= n - 1.5 + yOffset / size) return;
+    if (y0 <= 0 || y0 >= n - 1.51 + yOffset / size) return;
 
     // if the previous slide is not visible, immediate jump
     if (y1 > y0 && y1 - y0 < .5 - yOffset / size) root.scrollTop = y1 * size;
