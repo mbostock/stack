@@ -1,5 +1,6 @@
 var stack = (function() {
   var stack = {},
+      event = d3.dispatch("activate", "deactivate"),
       section = d3.selectAll("section"),
       self = d3.select(window),
       body = document.body,
@@ -65,12 +66,13 @@ var stack = (function() {
       .on("mousemove.stack", snap);
 
   resize();
-  scroll();
+  setTimeout(scroll, 10);
 
   // if scrolling up, jump to edge of previous slide
   function leap(yNew) {
     if ((yActual == yFloor) && (yNew < yActual)) {
-      yFloor--;
+      event.deactivate.call(section[0][yFloor], yFloor);
+      event.activate.call(section[0][--yFloor], yFloor);
       yActual -= .5 - yOffset / size / 2;
       root.scrollTop = yActual * size;
       return true;
@@ -118,9 +120,14 @@ var stack = (function() {
     // if scrolling up, jump to edge of previous slide
     if (leap(yNew)) return;
 
-    yActual = yNew;
-    yFloor = Math.max(0, Math.floor(yActual));
-    var yError = Math.min(yMax, (yActual % 1) * 2);
+    var yNewFloor = Math.max(0, Math.floor(yActual = yNew)),
+        yError = Math.min(yMax, (yActual % 1) * 2);
+
+    if (yFloor != yNewFloor) {
+      if (yFloor != null) event.deactivate.call(section[0][yFloor], yFloor);
+      event.activate.call(section[0][yNewFloor], yNewFloor);
+      yFloor = yNewFloor;
+    }
 
     section
         .classed("active", false);
@@ -178,6 +185,8 @@ var stack = (function() {
     ease = _;
     return stack;
   };
+
+  d3.rebind(stack, event, "on");
 
   return stack;
 })();
