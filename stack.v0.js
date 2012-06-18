@@ -5,7 +5,8 @@ var stack = (function() {
       body = document.body,
       root = body,
       timeout,
-      duration = 750,
+      duration = 250,
+      ease = "cubic-in-out",
       screenX,
       screenY,
       size,
@@ -46,6 +47,7 @@ var stack = (function() {
       leap(y1);
       d3.select(root).transition()
           .duration(duration)
+          .ease(ease)
           .tween("scrollTop", tween(yTarget = y1))
           .each("end", function() { yTarget = null; self.on("scroll.stack", scroll); });
     }
@@ -164,6 +166,18 @@ var stack = (function() {
       return function(t) { this.scrollTop = i(t); scroll(); };
     };
   }
+
+  stack.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    return stack;
+  };
+
+  stack.ease = function(_) {
+    if (!arguments.length) return ease;
+    ease = _;
+    return stack;
+  };
 
   return stack;
 })();
