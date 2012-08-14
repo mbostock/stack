@@ -8,7 +8,6 @@ var stack = (function() {
       timeout,
       duration = 250,
       ease = "cubic-in-out",
-      screenX,
       screenY,
       size,
       yActual,
@@ -17,13 +16,6 @@ var stack = (function() {
       yMax,
       yOffset,
       n = section[0].length;
-
-  // Detect whether to scroll with documentElement or body.
-  body.style.height = window.innerHeight + 1 + "px";
-  body.scrollTop = 1;
-  if (!body.scrollTop) root = document.documentElement;
-  else body.scrollTop = 0;
-  body.style.height = "auto";
 
   // Invert the z-index so the earliest slides are on top.
   section.classed("stack", true).style("z-index", function(d, i) { return n - i; });
@@ -66,7 +58,9 @@ var stack = (function() {
       .on("mousemove.stack", snap);
 
   resize();
-  setTimeout(scroll, 10);
+
+  body.scrollTop = 1;
+  setTimeout(load, 10);
 
   // if scrolling up, jump to edge of previous slide
   function leap(yNew) {
@@ -87,6 +81,13 @@ var stack = (function() {
         .style("margin-top", yOffset + "px")
         .style("margin-bottom", yOffset + "px")
         .style("height", (n - .5) * size + yOffset + "px");
+  }
+
+  // Detect whether to scroll with documentElement or body.
+  function load() {
+    if (!body.scrollTop) root = document.documentElement;
+    else body.scrollTop = 0;
+    scroll();
   }
 
   function keydown() {
@@ -148,9 +149,9 @@ var stack = (function() {
   }
 
   function snap() {
-    var x = d3.event.screenX, y = d3.event.screenY;
-    if (x === screenX && y === screenY) return; // ignore move on scroll
-    screenX = x, screenY = y;
+    var y = d3.event.clientY;
+    if (y === screenY) return; // ignore move on scroll
+    screenY = y;
 
     if (yTarget != null) return; // don't snap if already snapping
 
