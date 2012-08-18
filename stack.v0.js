@@ -62,7 +62,7 @@ var stack = (function() {
 
   // if scrolling up, jump to edge of previous slide
   function leap(yNew) {
-    if (yOffset > 10 && (yActual == yFloor) && (yNew < yActual)) {
+    if ((yActual < n - 1) && (yActual == yFloor) && (yNew < yActual)) {
       event.deactivate.call(section[0][yFloor], yFloor);
       event.activate.call(section[0][--yFloor], yFloor);
       yActual -= .5 - yOffset / size / 2;
