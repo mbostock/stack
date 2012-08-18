@@ -4,7 +4,7 @@ var stack = (function() {
       section = d3.selectAll("section"),
       self = d3.select(window),
       body = document.body,
-      root = body,
+      root = document.documentElement,
       timeout,
       duration = 250,
       ease = "cubic-in-out",
@@ -58,9 +58,7 @@ var stack = (function() {
       .on("mousemove.stack", snap);
 
   resize();
-
-  body.scrollTop = 1;
-  setTimeout(load, 10);
+  scroll();
 
   // if scrolling up, jump to edge of previous slide
   function leap(yNew) {
@@ -81,13 +79,6 @@ var stack = (function() {
         .style("margin-top", yOffset + "px")
         .style("margin-bottom", yOffset + "px")
         .style("height", (n - .5) * size + yOffset + "px");
-  }
-
-  // Detect whether to scroll with documentElement or body.
-  function load() {
-    if (!body.scrollTop) root = document.documentElement;
-    else body.scrollTop = 0;
-    scroll();
   }
 
   function keydown() {
@@ -115,6 +106,10 @@ var stack = (function() {
   }
 
   function scroll() {
+
+    // Detect whether to scroll with documentElement or body.
+    if (root !== body && body.scrollTop) root = body;
+
     var yNew = Math.max(0, root.scrollTop / size);
     if (yNew >= n - 1.51 + yOffset / size) yNew = n - 1;
 

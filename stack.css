@@ -40,9 +40,7 @@ a:not(:hover) {
 }
 
 @media
-screen and (-webkit-min-device-pixel-ratio: 2),
-screen and (min-device-width: 768px) and (max-device-width: 1024px),
-screen and (max-device-width: 480px) {
+screen and (max-device-width: 1024px) {
   body {
     width: 1200px;
   }
