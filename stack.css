@@ -14,9 +14,8 @@ a:not(:hover) {
 }
 
 .stack {
-  background: #000;
+  background: #222 url(cartographer.png);
   color: #fff;
-  box-shadow: 0px 4px 8px rgba(0,0,0,.5);
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -31,6 +30,7 @@ a:not(:hover) {
 }
 
 .active {
+  box-shadow: 0px 4px 8px rgba(0,0,0,.5);
   display: block;
   position: fixed;
 }
