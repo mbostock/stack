@@ -27,7 +27,7 @@ var stack = (function() {
 
   // Sets the stack position.
   stack.position = function(y1) {
-    var y0 = root.scrollTop / size;
+    var y0 = body.scrollTop / size;
     if (arguments.length < 1) return y0;
 
     // clamp and round
@@ -38,7 +38,7 @@ var stack = (function() {
     if (y0 - y1) {
       self.on("scroll.stack", null);
       leap(y1);
-      d3.select(root).transition()
+      d3.select(body).transition()
           .duration(duration)
           .ease(ease)
           .tween("scrollTop", tween(yTarget = y1))
@@ -66,7 +66,7 @@ var stack = (function() {
       event.deactivate.call(section[0][yFloor], yFloor);
       event.activate.call(section[0][--yFloor], yFloor);
       yActual -= .5 - yOffset / size / 2;
-      root.scrollTop = yActual * size;
+      scrollTo(0, yActual * size);
       return true;
     }
   }
@@ -75,7 +75,7 @@ var stack = (function() {
     yOffset = (window.innerHeight - size) / 2;
     yMax = 1 + yOffset / size;
 
-    d3.select("body")
+    d3.select(body)
         .style("margin-top", yOffset + "px")
         .style("margin-bottom", yOffset + "px")
         .style("height", (n - .5) * size + yOffset + "px");
@@ -108,9 +108,9 @@ var stack = (function() {
   function scroll() {
 
     // Detect whether to scroll with documentElement or body.
-    if (root !== body && body.scrollTop) root = body;
+    if (body !== root && root.scrollTop) body = root;
 
-    var yNew = Math.max(0, root.scrollTop / size);
+    var yNew = Math.max(0, body.scrollTop / size);
     if (yNew >= n - 1.51 + yOffset / size) yNew = n - 1;
 
     // if scrolling up, jump to edge of previous slide
@@ -157,7 +157,7 @@ var stack = (function() {
     if (y0 <= 0 || y0 >= n - 1.51 + yOffset / size) return;
 
     // if the previous slide is not visible, immediate jump
-    if (y1 > y0 && y1 - y0 < .5 - yOffset / size) root.scrollTop = y1 * size;
+    if (y1 > y0 && y1 - y0 < .5 - yOffset / size) scrollTo(0, y1 * size);
 
     // else transition
     else stack.position(y1);
@@ -166,7 +166,7 @@ var stack = (function() {
   function tween(y) {
     return function() {
       var i = d3.interpolateNumber(this.scrollTop, y * size);
-      return function(t) { this.scrollTop = i(t); scroll(); };
+      return function(t) { scrollTo(0, i(t)); scroll(); };
     };
   }
 
