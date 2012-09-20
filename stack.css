@@ -53,3 +53,12 @@ screen and (max-device-width: 1024px) {
     display: block;
   }
 }
+
+@media print {
+  .stack, .active {
+    display: block;
+    box-shadow: none;
+    page-break-after: always;
+    -webkit-print-color-adjust:exact;
+  }
+}
