@@ -45,6 +45,8 @@ var stack = (function() {
           .each("end", function() { yTarget = null; self.on("scroll.stack", scroll); });
     }
 
+    location.replace('#' + y1);
+
     return stack;
   };
 
@@ -59,6 +61,9 @@ var stack = (function() {
 
   resize();
   scroll();
+
+  var hash = +location.hash.slice(1);
+  if (!isNaN(hash)) stack.position(hash);
 
   // if scrolling up, jump to edge of previous slide
   function leap(yNew) {
