@@ -45,7 +45,7 @@ var stack = (function() {
           .each("end", function() { yTarget = null; self.on("scroll.stack", scroll); });
     }
 
-    location.replace('#' + y1);
+    location.replace("#" + y1);
 
     return stack;
   };
@@ -57,13 +57,12 @@ var stack = (function() {
       .on("keydown.stack", keydown)
       .on("resize.stack", resize)
       .on("scroll.stack", scroll)
-      .on("mousemove.stack", snap);
+      .on("mousemove.stack", snap)
+      .on("hashchange.stack", hashchange);
 
   resize();
   scroll();
-
-  var hash = +location.hash.slice(1);
-  if (!isNaN(hash)) stack.position(hash);
+  hashchange();
 
   // if scrolling up, jump to edge of previous slide
   function leap(yNew) {
@@ -84,6 +83,11 @@ var stack = (function() {
         .style("margin-top", yOffset + "px")
         .style("margin-bottom", yOffset + "px")
         .style("height", (n - .5) * size + yOffset + "px");
+  }
+
+  function hashchange() {
+    var hash = +location.hash.slice(1);
+    if (!isNaN(hash)) stack.position(hash);
   }
 
   function keydown() {
@@ -165,7 +169,7 @@ var stack = (function() {
     if (y1 > y0 && y1 - y0 < .5 - yOffset / size) scrollTo(0, y1 * size);
 
     // else transition
-    else stack.position(y1);
+    else if (y1 !== y0) stack.position(y1);
   }
 
   function tween(y) {
