@@ -87,7 +87,7 @@ var stack = (function() {
 
   function hashchange() {
     var hash = +location.hash.slice(1);
-    if (!isNaN(hash)) stack.position(hash);
+    if (!isNaN(hash) && hash !== yFloor) stack.position(hash);
   }
 
   function keydown() {
@@ -131,6 +131,7 @@ var stack = (function() {
     if (yFloor != yNewFloor) {
       if (yFloor != null) event.deactivate.call(section[0][yFloor], yFloor);
       event.activate.call(section[0][yNewFloor], yNewFloor);
+      location.replace("#" + yNewFloor);
       yFloor = yNewFloor;
     }
 
