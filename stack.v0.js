@@ -61,8 +61,8 @@ var stack = (function() {
       .on("hashchange.stack", hashchange);
 
   resize();
-  scroll();
   hashchange();
+  scroll();
 
   // if scrolling up, jump to edge of previous slide
   function leap(yNew) {
