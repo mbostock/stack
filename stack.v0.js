@@ -16,7 +16,8 @@ var stack = (function() {
       yActive = -1,
       yMax,
       yOffset,
-      n = section[0].length;
+      n = section[0].length,
+      sound = slideSound(n);
 
   // Invert the z-index so the earliest slides are on top.
   section.classed("stack", true).style("z-index", function(d, i) { return n - i; });
@@ -48,6 +49,7 @@ var stack = (function() {
 
     location.replace("#" + y1);
 
+    sound.stop();
     return stack;
   };
 
@@ -128,6 +130,9 @@ var stack = (function() {
       case 32: // space
       delta = d3.event.shiftKey ? -1 : 1;
       break;
+      case 83: // 's'; Play sound
+      sound.play(Math.round(yActual) + 1);
+      return;
       default: return;
     }
     if (timeout) timeout = clearTimeout(timeout);
