@@ -110,8 +110,7 @@ var mystack = stack()
     .on("activate", activate)
     .on("deactivate", deactivate);
 
-var follow = d3.select("#follow"),
-    followActive = false;
+var follow = d3.select("#follow");
 
 function refollow(y) {
   follow.style("top", (1 + (1 - mystack.scrollRatio()) / 2 - y) * 100 + "%");
