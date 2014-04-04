@@ -2,91 +2,100 @@
 <meta charset="utf-8">
 <style>
 
-@import url(stack.css);
+@import url(http://fonts.googleapis.com/css?family=PT+Serif|PT+Serif:b|PT+Serif:i);
 
-.big {
-  font-size: 128px;
+section {
+  background: #000;
+  color: #fff;
+  padding: 2em;
+  font-family: "PT Serif", Baskerville, Georgia;
 }
 
-.caption {
-  font-size: 96px;
-  text-align: center;
-  text-shadow: 0px 2px 6px rgba(0,0,0,.5);
+.grey {
+  color: #777;
+}
+
+a:link,
+a:visited {
+  color: orange;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 </style>
-<body class="overview">
 
-<section>
-  <p><b>Stack</b> is a presentation library<br> with scroll-based navigation.
+<section style="text-align:center;padding-top:5em;">
+  <p style="font-size:120%;"><b><a href="https://github.com/mbostock/stack">Stack</a></b> is a presentation library<br> with simple, scroll-based navigation.
   <p class="grey">Scroll down to continue.
 </section>
 
 <section>
-  <p style="position:absolute;bottom:0;">PEEK-A-BOO! I see you!</p>
+  <p id="follow" style="position:absolute;text-indent:-1.25em;">&larr; When this bar reaches the top,<br>the next slide will fade in.
 </section>
 
-<section>
-  <p>You can also scroll with the keyboard:
+<section style="padding:5em 9em;">
+  <p>In addition to the mouse,
+    <br>you can scroll with the keyboard:
     <br>use the <b>arrow keys</b>,
     <br>the <b>space bar</b>,
     <br>or <b>page up</b> and <b>page down</b>.
   <p class="grey">Multiple key presses will skip multiple slides.
 </section>
 
-<section>
+<section style="text-align:center;padding-top:5em;">
   <p>You can even grab the scroll bar!
 </section>
 
-<section>
-  <h1 class="caption">9</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  9
 </section>
 
-<section>
-  <h1 class="caption">8</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  8
 </section>
 
-<section>
-  <h1 class="caption">7</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  7
 </section>
 
-<section>
-  <h1 class="caption">6</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  6
 </section>
 
-<section>
-  <h1 class="caption">5</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  5
 </section>
 
-<section>
-  <h1 class="caption">4</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  4
 </section>
 
-<section>
-  <h1 class="caption">3</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  3
 </section>
 
-<section>
-  <h1 class="caption">2</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  2
 </section>
 
-<section>
-  <h1 class="caption">1</h1>
+<section style="text-align:center;padding:.35em;font-size:1000%;">
+  1
 </section>
 
-<section style="background:url(sky.jpg);">
-  <h1 class="caption">GRATUITOUS IMAGE<br>WITH CAPTION</h1>
+<section style="text-align:center;padding-top:2.5em;color:#000;font-size:200%;line-height:3em;background:url(sky.jpg);background-size:cover;">
+  <p>INSPIRATIONAL IMAGE<br>ACCOMPANIED BY<br>INSIGHTFUL COMMENTARY
 </section>
 
-<section>
-  <p>If you stop between slides,<br><b>stack snaps to the closest slide</b>.
+<section style="text-align:center;padding-top:5em;">
+  <p>If you resize the window,
+    <br>slide content will scale up or down
+    <br>to fit automatically.
 </section>
 
-<section>
-  <p>Stack works on <b>iOS</b>, too.</p>
-</section>
-
-<section>
+<section style="padding:5em 13em;">
   <p>Stack is made by <a href="http://bost.ocks.org/mike/" rel="author">Mike Bostock</a>
     <br>and is available on <a href="https://github.com/mbostock/stack">GitHub</a>
     <br>under the <a href="https://github.com/mbostock/stack/blob/gh-pages/LICENSE">BSD license</a>.
@@ -94,4 +103,26 @@
 </section>
 
 <script src="d3.v3.min.js"></script>
-<script src="stack.v0.min.js"></script>
+<script src="stack.v1.min.js"></script>
+<script>
+
+var mystack = stack()
+    .on("activate", activate)
+    .on("deactivate", deactivate);
+
+var follow = d3.select("#follow"),
+    followActive = false;
+
+function refollow(y) {
+  follow.style("top", (1 + (1 - mystack.scrollRatio()) / 2 - y) * 100 + "%");
+}
+
+function activate(i) {
+  if (i === 1) mystack.on("scroll.follow", refollow);
+}
+
+function deactivate(i) {
+  if (i === 1) mystack.on("scroll.follow", null);
+}
+
+</script>
