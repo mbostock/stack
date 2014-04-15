@@ -2,7 +2,8 @@ function stack() {
   var stack = {},
       size = [1280, 720],
       fontSize = 32,
-      height,
+      sectionHeight,
+      windowHeight,
       dispatch = d3.dispatch("scroll", "activate", "deactivate"),
       i = NaN,
       y = 0,
@@ -55,29 +56,29 @@ function stack() {
   });
 
   function resize() {
-    if (height) var y0 = y;
+    if (sectionHeight) var y0 = y;
 
-    height = size[1] / size[0] * innerWidth;
+    sectionHeight = size[1] / size[0] * innerWidth;
+    windowHeight = innerHeight;
 
     sectionAndBackground
-        .style("top", (innerHeight - height) / 2 + "px")
-        .style("height", height + "px");
+        .style("top", (windowHeight - sectionHeight) / 2 + "px")
+        .style("height", sectionHeight + "px");
 
     indicator
-        .style("margin-top", (innerHeight - height) / 2 + "px")
-        .style("top", function(i) { return (i + (1 - scrollRatio) / 2) * height + "px"; })
-        .style("height", height * scrollRatio + "px");
+        .style("top", function(i) { return (i + (1 - scrollRatio) / 2) * windowHeight + "px"; })
+        .style("height", windowHeight * scrollRatio + "px");
 
     body
         .style("font-size", innerWidth / size[0] * fontSize + "px")
-        .style("height", height * n + (innerHeight - height) + "px");
+        .style("height", windowHeight * n + "px");
 
     // Preserve the current scroll position on resize.
-    if (isNaN(y0)) scrollTo(0, (y = y0) * height);
+    if (!isNaN(y0)) scrollTo(0, (y = y0) * windowHeight);
   }
 
   function reposition() {
-    var y1 = pageYOffset / height,
+    var y1 = pageYOffset / windowHeight,
         i1 = Math.max(0, Math.min(n - 1, Math.floor(y1)));
 
     if (i !== i1) {
@@ -145,7 +146,7 @@ function stack() {
       .transition()
         .duration(500)
         .tween("scroll", function() {
-          var i = d3.interpolateNumber(pageYOffset, yt * height);
+          var i = d3.interpolateNumber(pageYOffset, yt * windowHeight);
           return function(t) { scrollTo(0, i(t)); };
         })
         .each("end", function() { yt = NaN; });
