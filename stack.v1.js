@@ -55,6 +55,16 @@ function stack() {
     return true;
   });
 
+  function dispatchEvent(event, i) {
+    var target = section[0][i], sourceEvent = event.sourceEvent = d3.event;
+    try {
+      d3.event = event;
+      dispatch[event.type].call(target, target.__data__, i);
+    } finally {
+      d3.event = sourceEvent;
+    }
+  }
+
   function resize() {
     if (sectionHeight) var y0 = y;
 
@@ -86,21 +96,21 @@ function stack() {
         sectionCurrent.style("display", "none");
         sectionCurrent = sectionNext;
         sectionNext = d3.select(section[0][i1 + 1]);
-        dispatch.deactivate.call(stack, i);
-        dispatch.activate.call(stack, i1 + 1);
+        dispatchEvent({type: "deactivate"}, i);
+        dispatchEvent({type: "activate"}, i1 + 1);
       } else if (i1 === i - 1) { // rewind one
         sectionNext.style("display", "none");
         sectionNext = sectionCurrent;
         sectionCurrent = d3.select(section[0][i1]);
-        dispatch.deactivate.call(stack, i + 1);
-        dispatch.activate.call(stack, i1);
+        dispatchEvent({type: "deactivate"}, i + 1);
+        dispatchEvent({type: "activate"}, i1);
       } else { // skip
         sectionCurrent.style("display", "none");
         sectionNext.style("display", "none");
         sectionCurrent = d3.select(section[0][i1]);
         sectionNext = d3.select(section[0][i1 + 1]);
-        if (!isNaN(i)) dispatch.deactivate.call(stack, i + 1), dispatch.deactivate.call(stack, i);
-        dispatch.activate.call(stack, i1), dispatch.activate.call(stack, i1 + 1);
+        if (!isNaN(i)) dispatchEvent({type: "deactivate"}, i + 1), dispatchEvent({type: "deactivate"}, i);
+        dispatchEvent({type: "activate"}, i1), dispatchEvent({type: "activate"}, i1 + 1);
       }
       sectionCurrent.style("display", "block").style("opacity", 1);
       sectionNext.style("display", "block");
@@ -113,7 +123,7 @@ function stack() {
       sectionNext.style("display", "none");
     }
 
-    dispatch.scroll.call(stack, y = y1);
+    dispatchEvent({type: "scroll", offset: y = y1}, i);
   }
 
   function keydown() {

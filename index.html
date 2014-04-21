@@ -119,16 +119,16 @@ var mystack = stack()
 
 var follow = d3.select("#follow");
 
-function refollow(y) {
-  follow.style("top", (1 + (1 - mystack.scrollRatio()) / 2 - y) * 100 + "%");
+function refollow() {
+  follow.style("top", (1 + (1 - mystack.scrollRatio()) / 2 - d3.event.offset) * 100 + "%");
 }
 
-function activate(i) {
+function activate(d, i) {
   if (i === 1) mystack.on("scroll.follow", refollow);
   if (i === 15) startLorenz();
 }
 
-function deactivate(i) {
+function deactivate(d, i) {
   if (i === 1) mystack.on("scroll.follow", null);
   if (i === 15) stopLorenz();
 }
