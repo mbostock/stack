@@ -97,12 +97,12 @@ function stack() {
         sectionCurrent = sectionNext;
         sectionNext = d3.select(section[0][i1 + 1]);
         dispatchEvent({type: "deactivate"}, i);
-        dispatchEvent({type: "activate"}, i1 + 1);
+        if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       } else if (i1 === i - 1) { // rewind one
         sectionNext.style("display", "none");
         sectionNext = sectionCurrent;
         sectionCurrent = d3.select(section[0][i1]);
-        dispatchEvent({type: "deactivate"}, i + 1);
+        if (i < n - 1) dispatchEvent({type: "deactivate"}, i + 1);
         dispatchEvent({type: "activate"}, i1);
       } else { // skip
         sectionCurrent.style("display", "none");
@@ -110,7 +110,8 @@ function stack() {
         sectionCurrent = d3.select(section[0][i1]);
         sectionNext = d3.select(section[0][i1 + 1]);
         if (!isNaN(i)) dispatchEvent({type: "deactivate"}, i + 1), dispatchEvent({type: "deactivate"}, i);
-        dispatchEvent({type: "activate"}, i1), dispatchEvent({type: "activate"}, i1 + 1);
+        dispatchEvent({type: "activate"}, i1);
+        if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       }
       sectionCurrent.style("display", "block").style("opacity", 1);
       sectionNext.style("display", "block");
