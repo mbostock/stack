@@ -5,37 +5,16 @@ function stack() {
       sectionHeight,
       windowHeight,
       dispatch = d3.dispatch("scroll", "activate", "deactivate"),
+      touchy = "ontouchstart" in document,
+      resize = touchy ? resizeTouchy : resizeNoTouchy,
       i = NaN,
       y = 0,
       yt,
-      scrollRatio = 1 / 4;
-
-  var background = d3.select("body").insert("div", "section")
-      .style("box-shadow", "0 8px 16px rgba(0,0,0,.3)");
+      scrollRatio = 1 / 6;
 
   var section = d3.selectAll("section")
-      .style("display", "none")
       .style("box-sizing", "border-box")
       .style("line-height", "1.35em");
-
-  var sectionAndBackground = d3.selectAll(section[0].concat(background.node()))
-      .style("position", "fixed")
-      .style("left", 0)
-      .style("top", 0)
-      .style("width", "100%");
-
-  var indicator = d3.select("body").append("div")
-      .attr("class", "indicator")
-    .selectAll("div")
-      .data(d3.range(section.size()))
-    .enter().append("div")
-      .style("position", "absolute")
-      .style("left", 0)
-      .style("width", "3px")
-      .style("background", "linear-gradient(to top,transparent,white)");
-
-  var sectionCurrent = d3.select(section[0][0]).style("display", "block"),
-      sectionNext = d3.select(section[0][1]).style("display", "block");
 
   var n = section.size();
 
@@ -44,16 +23,50 @@ function stack() {
       .style("padding", 0)
       .style("background", "#333");
 
-  d3.select(window)
-      .on("resize.stack", resize)
-      .on("scroll.stack", reposition)
-      .on("keydown.stack", keydown)
-      .each(resize);
+  if (touchy) {
+    section
+        .style("position", "relative");
 
-  d3.timer(function() {
-    reposition();
-    return true;
-  });
+    d3.select(window)
+        .on("resize.stack", resize)
+        .each(resize);
+  } else {
+    var background = d3.select("body").insert("div", "section")
+        .style("box-shadow", "0 8px 16px rgba(0,0,0,.3)");
+
+    section
+        .style("display", "none");
+
+    var sectionAndBackground = d3.selectAll(section[0].concat(background.node()))
+        .style("position", "fixed")
+        .style("left", 0)
+        .style("top", 0)
+        .style("width", "100%");
+
+    var indicator = d3.select("body").append("div")
+        .attr("class", "indicator")
+      .selectAll("div")
+        .data(d3.range(section.size()))
+      .enter().append("div")
+        .style("position", "absolute")
+        .style("left", 0)
+        .style("width", "3px")
+        .style("background", "linear-gradient(to top,black,white)");
+
+    var sectionCurrent = d3.select(section[0][0]).style("display", "block"),
+        sectionNext = d3.select(section[0][1]).style("display", "block");
+
+    d3.select(window)
+        .on("resize.stack", resize)
+        .on("scroll.stack", reposition)
+        .on("keydown.stack", keydown)
+        .each(resize);
+
+    d3.timer(function() {
+      reposition();
+      return true;
+    });
+  }
 
   function dispatchEvent(event, i) {
     var target = section[0][i], sourceEvent = event.sourceEvent = d3.event;
@@ -65,7 +78,23 @@ function stack() {
     }
   }
 
-  function resize() {
+  function resizeTouchy() {
+    var marginBottom = 20;
+
+    sectionHeight = size[1] / size[0] * innerWidth;
+    windowHeight = innerHeight;
+
+    section
+        .style("height", sectionHeight + "px")
+        .style("box-shadow", "0 4px 4px rgba(0,0,0,.3)")
+      .filter(function(d, i) { return i < n - 1; })
+        .style("margin-bottom", marginBottom + "px");
+
+    body
+        .style("font-size", innerWidth / size[0] * fontSize + "px");
+  }
+
+  function resizeNoTouchy() {
     if (sectionHeight) var y0 = y;
 
     sectionHeight = size[1] / size[0] * innerWidth;
