@@ -12,6 +12,10 @@ section {
   font-family: "PT Serif", Baskerville, Georgia;
 }
 
+#follow {
+  background: none;
+}
+
 .grey {
   color: #777;
 }
@@ -31,10 +35,6 @@ a:hover {
 <section style="text-align:center;padding-top:5em;">
   <p style="font-size:120%;"><b><a href="https://github.com/mbostock/stack">Stack</a></b> is a presentation library<br> with simple, scroll-based navigation.
   <p class="grey">Scroll down to continue.
-</section>
-
-<section>
-  <p id="follow" style="position:fixed;text-indent:-1.25em;">&larr; When this bar reaches the top,<br>the next slide will fade in.
 </section>
 
 <section style="padding:5em 9em;">
@@ -86,8 +86,9 @@ a:hover {
   1
 </section>
 
-<section style="text-align:center;padding-top:2.5em;color:#000;font-size:200%;line-height:3em;background:url(sky.jpg);background-size:cover;">
-  <p>INSPIRATIONAL IMAGE<br>ACCOMPANIED BY<br>INSIGHTFUL COMMENTARY
+<section id="follow" style="padding-top:5em;background:url(sky.jpg);background-size:cover;">
+  <p style="text-align:center;color:#000;font-size:200%;line-height:1.35em;">INSPIRATIONAL IMAGE<br>ACCOMPANIED BY<br>INSIGHTFUL COMMENTARY
+  <p id="follow-anchor" style="position:fixed;text-indent:-1.25em;">&larr; When this bar reaches the top,<br>the next slide will fade in.
 </section>
 
 <section style="text-align:center;padding-top:5em;">
@@ -96,7 +97,7 @@ a:hover {
     <br>to fit automatically.
 </section>
 
-<section style="text-align:center;padding-top:5em;">
+<section id="lorenz" style="text-align:center;padding-top:5em;">
   <canvas></canvas>
   <p style="position:absolute;z-index:1;top:5em;left:0;width:100%;text-shadow:0 1px 0 #000;">Use <i>activate</i> and <i>deactivate</i> events
     <br>to enable complex animations
@@ -118,20 +119,25 @@ var mystack = stack()
     .on("activate", activate)
     .on("deactivate", deactivate);
 
-var follow = d3.select("#follow");
+var section = d3.selectAll("section"),
+    follow = d3.select("#follow"),
+    followAnchor = d3.select("#follow-anchor"),
+    lorenz = d3.select("#lorenz"),
+    followIndex = section[0].indexOf(follow.node()),
+    lorenzIndex = section[0].indexOf(lorenz.node());
 
 function refollow() {
-  follow.style("top", (1 + (1 - mystack.scrollRatio()) / 2 - d3.event.offset) * 100 + "%");
+  followAnchor.style("top", (followIndex + (1 - mystack.scrollRatio()) / 2 - d3.event.offset) * 100 + "%");
 }
 
 function activate(d, i) {
-  if (i === 1) mystack.on("scroll.follow", refollow);
-  if (i === 15) startLorenz();
+  if (i === followIndex) mystack.on("scroll.follow", refollow);
+  if (i === lorenzIndex) startLorenz();
 }
 
 function deactivate(d, i) {
-  if (i === 1) mystack.on("scroll.follow", null);
-  if (i === 15) stopLorenz();
+  if (i === followIndex) mystack.on("scroll.follow", null);
+  if (i === lorenzIndex) stopLorenz();
 }
 
 var lorenzInterval;

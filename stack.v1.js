@@ -5,6 +5,7 @@ function stack() {
       sectionHeight,
       windowHeight,
       dispatch = d3.dispatch("scroll", "activate", "deactivate"),
+      vendor = ["", "-webkit-", "-moz-", "-ms-", "-o-"].reduce(function(p, v) { return p == null && (v + "transition" in document.body.style) ? v : p; }, null),
       touchy = "ontouchstart" in document,
       resize = touchy ? resizeTouchy : resizeNoTouchy,
       i = NaN,
@@ -32,9 +33,11 @@ function stack() {
         .each(resize);
   } else {
     var background = d3.select("body").insert("div", "section")
+        .style("background", "#000")
         .style("box-shadow", "0 8px 16px rgba(0,0,0,.3)");
 
     section
+        .style(vendor + "transition", "opacity 250ms linear")
         .style("display", "none");
 
     var sectionAndBackground = d3.selectAll(section[0].concat(background.node()))
@@ -147,8 +150,8 @@ function stack() {
       i = i1;
     }
 
-    if (y1 - i1 > (1 - scrollRatio) / 2) {
-      sectionNext.style("display", "block").style("opacity", Math.min(1, (y1 - i1 - (1 - scrollRatio) / 2) / scrollRatio));
+    if (y1 - i1 > 1 / 2 - scrollRatio) {
+      sectionNext.style("display", "block").style("opacity", (y1 - i1 - 1 / 2 + scrollRatio) / scrollRatio >= .5 ? 1 : 0);
     } else {
       sectionNext.style("display", "none");
     }
