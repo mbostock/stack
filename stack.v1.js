@@ -54,7 +54,7 @@ function stack() {
         .style("position", "absolute")
         .style("left", 0)
         .style("width", "3px")
-        .style("background", "linear-gradient(to top,black,white)");
+        .style("background", "linear-gradient(to top,rgba(255,255,255,0),white)");
 
     var sectionCurrent = d3.select(section[0][0]).style("display", "block"),
         sectionNext = d3.select(section[0][1]).style("display", "block");
