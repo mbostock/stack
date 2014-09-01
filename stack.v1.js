@@ -60,6 +60,7 @@ function stack() {
         sectionNext = d3.select(section[0][1]).style("display", "block");
 
     d3.select(window)
+        .on("beforeunload", function () { scrollTo(0, 0); })  //  Reset to top on F5  
         .on("resize.stack", resize)
         .on("scroll.stack", reposition)
         .on("keydown.stack", keydown)
@@ -119,34 +120,31 @@ function stack() {
     if (!isNaN(y0)) scrollTo(0, (y = y0) * windowHeight);
   }
 
-  function reposition() {
-    var y1 = pageYOffset / windowHeight,
-        i1 = Math.max(0, Math.min(n - 1, Math.floor(y1)));
+  function reposition(_pageYOffset) {
+    _pageYOffset = _pageYOffset || pageYOffset;
+    var y1 = _pageYOffset / windowHeight,
+        i1 = Math.max(0, Math.min(n - 1, y1));
+    i1 = i1 > i ? Math.floor(i1) : Math.ceil(i1);
 
     if (i !== i1) {
       if (i1 === i + 1) { // advance one
         sectionCurrent.style("display", "none");
         sectionCurrent = sectionNext;
         sectionNext = d3.select(section[0][i1 + 1]);
-        dispatchEvent({type: "deactivate"}, i);
-        if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       } else if (i1 === i - 1) { // rewind one
         sectionNext.style("display", "none");
         sectionNext = sectionCurrent;
         sectionCurrent = d3.select(section[0][i1]);
-        if (i < n - 1) dispatchEvent({type: "deactivate"}, i + 1);
-        dispatchEvent({type: "activate"}, i1);
       } else { // skip
         sectionCurrent.style("display", "none");
         sectionNext.style("display", "none");
         sectionCurrent = d3.select(section[0][i1]);
         sectionNext = d3.select(section[0][i1 + 1]);
-        if (!isNaN(i)) dispatchEvent({type: "deactivate"}, i + 1), dispatchEvent({type: "deactivate"}, i);
-        dispatchEvent({type: "activate"}, i1);
-        if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       }
       sectionCurrent.style("display", "block").style("opacity", 1);
       sectionNext.style("display", "block");
+      if (!isNaN(i)) dispatchEvent({ type: "deactivate" }, i);
+      if (i1 < n) dispatchEvent({ type: "activate" }, i1);
       i = i1;
     }
 
@@ -173,8 +171,11 @@ function stack() {
       case 33: // page up
       delta = d3.event.metaKey ? -Infinity : -1; break;
       case 32: // space
-      delta = d3.event.shiftKey ? -1 : 1;
-      break;
+      delta = d3.event.shiftKey ? -1 : 1; break;
+      case 36: // home
+      delta = -Infinity; break;
+      case 35: // end
+      delta = Infinity; break;
       default: return;
     }
 
@@ -187,7 +188,7 @@ function stack() {
     d3.select(document.documentElement)
         .interrupt()
       .transition()
-        .duration(500)
+        .duration(Math.abs(delta) > 1 ? 0 : 500)
         .tween("scroll", function() {
           var i = d3.interpolateNumber(pageYOffset, yt * windowHeight);
           return function(t) { scrollTo(0, i(t)); };
@@ -196,6 +197,19 @@ function stack() {
 
     d3.event.preventDefault();
   }
+
+  stack.scrollToPage = function (page) {
+      sectionCurrent.transition()
+        .style("opacity", 0)
+        .each("end", function() {
+            reposition(page * windowHeight);
+            sectionCurrent
+              .transition()
+              .style("opacity", 1)
+            ;
+        })
+      ;
+  };
 
   stack.size = function(_) {
     return arguments.length ? (size = [+_[0], +_[1]], resize(), stack) : size;
