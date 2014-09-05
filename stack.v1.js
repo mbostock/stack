@@ -5,7 +5,6 @@ function stack() {
       sectionHeight,
       windowHeight,
       dispatch = d3.dispatch("scroll", "activate", "deactivate"),
-      vendor = ["", "-webkit-", "-moz-", "-ms-", "-o-"].reduce(function(p, v) { return p == null && (v + "transition" in document.body.style) ? v : p; }, null),
       touchy = "ontouchstart" in document,
       resize = touchy ? resizeTouchy : resizeNoTouchy,
       i = NaN,
@@ -37,8 +36,9 @@ function stack() {
         .style("box-shadow", "0 8px 16px rgba(0,0,0,.3)");
 
     section
-        .style(vendor + "transition", "opacity 250ms linear")
-        .style("display", "none");
+        .style("display", "none")
+        .style("opacity", 0)
+        .style("z-index", 0);
 
     var sectionAndBackground = d3.selectAll(section[0].concat(background.node()))
         .style("position", "fixed")
@@ -52,12 +52,14 @@ function stack() {
         .data(d3.range(section.size()))
       .enter().append("div")
         .style("position", "absolute")
+        .style("z-index", 2)
         .style("left", 0)
         .style("width", "3px")
         .style("background", "linear-gradient(to top,black,white)");
 
-    var sectionCurrent = d3.select(section[0][0]).style("display", "block"),
-        sectionNext = d3.select(section[0][1]).style("display", "block");
+    var sectionPrevious = d3.select(null),
+        sectionCurrent = d3.select(section[0][0]),
+        sectionNext = d3.select(section[0][1]);
 
     d3.select(window)
         .on("resize.stack", resize)
@@ -121,39 +123,37 @@ function stack() {
 
   function reposition() {
     var y1 = pageYOffset / windowHeight,
-        i1 = Math.max(0, Math.min(n - 1, Math.floor(y1)));
+        i1 = Math.max(0, Math.min(n - 1, Math.floor(y1 + 1 / 2 + scrollRatio / 2)));
 
     if (i !== i1) {
       if (i1 === i + 1) { // advance one
-        sectionCurrent.style("display", "none");
-        sectionCurrent = sectionNext;
-        sectionNext = d3.select(section[0][i1 + 1]);
+        sectionPrevious.interrupt().style("display", "none");
+        var sp = sectionPrevious = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
+        sectionCurrent = sectionNext.interrupt().style("opacity", 0).style("z-index", 1);
+        sectionCurrent.transition().style("opacity", 1);
+        sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
         dispatchEvent({type: "deactivate"}, i);
         if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       } else if (i1 === i - 1) { // rewind one
-        sectionNext.style("display", "none");
-        sectionNext = sectionCurrent;
-        sectionCurrent = d3.select(section[0][i1]);
+        sectionNext.interrupt().style("display", "none");
+        var sn = sectionNext = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
+        sectionCurrent = sectionPrevious.interrupt().style("opacity", 0).style("z-index", 1);
+        sectionCurrent.transition().style("opacity", 1);
+        sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
         if (i < n - 1) dispatchEvent({type: "deactivate"}, i + 1);
         dispatchEvent({type: "activate"}, i1);
       } else { // skip
+        sectionPrevious.style("display", "none");
         sectionCurrent.style("display", "none");
         sectionNext.style("display", "none");
-        sectionCurrent = d3.select(section[0][i1]);
-        sectionNext = d3.select(section[0][i1 + 1]);
+        sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
+        sectionCurrent = d3.select(section[0][i1]).interrupt().style("display", "block").style("opacity", 1).style("z-index", 1);
+        sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
         if (!isNaN(i)) dispatchEvent({type: "deactivate"}, i + 1), dispatchEvent({type: "deactivate"}, i);
         dispatchEvent({type: "activate"}, i1);
         if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       }
-      sectionCurrent.style("display", "block").style("opacity", 1);
-      sectionNext.style("display", "block");
       i = i1;
-    }
-
-    if (y1 - i1 > 1 / 2 - scrollRatio) {
-      sectionNext.style("display", "block").style("opacity", (y1 - i1 - 1 / 2 + scrollRatio) / scrollRatio >= .5 ? 1 : 0);
-    } else {
-      sectionNext.style("display", "none");
     }
 
     dispatchEvent({type: "scroll", offset: y = y1}, i);
