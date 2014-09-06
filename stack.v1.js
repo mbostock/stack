@@ -123,12 +123,12 @@ function stack() {
 
   function reposition() {
     var y1 = pageYOffset / windowHeight,
-        i1 = Math.max(0, Math.min(n - 1, Math.floor(y1 + 1 / 2 + scrollRatio / 2)));
+        i1 = Math.max(0, Math.min(n - 1, Math.floor(y1 + (1 + scrollRatio) / 2)));
 
     if (i !== i1) {
       if (i1 === i + 1) { // advance one
         sectionPrevious.interrupt().style("display", "none");
-        var sp = sectionPrevious = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
+        sectionPrevious = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
         sectionCurrent = sectionNext.interrupt().style("opacity", 0).style("z-index", 1);
         sectionCurrent.transition().style("opacity", 1);
         sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
@@ -136,7 +136,7 @@ function stack() {
         if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       } else if (i1 === i - 1) { // rewind one
         sectionNext.interrupt().style("display", "none");
-        var sn = sectionNext = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
+        sectionNext = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
         sectionCurrent = sectionPrevious.interrupt().style("opacity", 0).style("z-index", 1);
         sectionCurrent.transition().style("opacity", 1);
         sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
@@ -181,7 +181,7 @@ function stack() {
     var y0 = isNaN(yt) ? y : yt;
 
     yt = Math.max(0, Math.min(n - 1, (delta > 0
-        ? Math.floor(y0 + (1 - scrollRatio) / 2)
+        ? Math.floor(y0 + (1 + scrollRatio) / 2)
         : Math.ceil(y0 - (1 - scrollRatio) / 2)) + delta));
 
     d3.select(document.documentElement)
