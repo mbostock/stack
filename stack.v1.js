@@ -14,7 +14,8 @@ function stack() {
 
   var section = d3.selectAll("section")
       .style("box-sizing", "border-box")
-      .style("line-height", "1.35em");
+      .style("line-height", "1.35em")
+      .each(initialize);
 
   var n = section.size();
 
@@ -33,7 +34,8 @@ function stack() {
   } else {
     var background = d3.select("body").insert("div", "section")
         .style("background", "#000")
-        .style("box-shadow", "0 8px 16px rgba(0,0,0,.3)");
+        .style("box-shadow", "0 8px 16px rgba(0,0,0,.3)")
+        .style("z-index", 0);
 
     section
         .style("display", "none")
@@ -52,7 +54,7 @@ function stack() {
         .data(d3.range(section.size()))
       .enter().append("div")
         .style("position", "absolute")
-        .style("z-index", 2)
+        .style("z-index", 10)
         .style("left", 0)
         .style("width", "3px")
         .style("background", "linear-gradient(to top,black,white)");
@@ -80,6 +82,24 @@ function stack() {
       dispatch[event.type].call(target, target.__data__, i);
     } finally {
       d3.event = sourceEvent;
+    }
+  }
+
+  function initialize(d, i) {
+    this.__stack__ = {index: i, active: false};
+  }
+
+  function activate() {
+    if (!this.__stack__.active) {
+      this.__stack__.active = true;
+      dispatchEvent({type: "activate"}, this.__stack__.index);
+    }
+  }
+
+  function deactivate() {
+    if (this.__stack__.active) {
+      this.__stack__.active = false;
+      dispatchEvent({type: "deactivate"}, this.__stack__.index);
     }
   }
 
@@ -127,31 +147,26 @@ function stack() {
 
     if (i !== i1) {
       if (i1 === i + 1) { // advance one
-        sectionPrevious.interrupt().style("display", "none");
-        sectionPrevious = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
-        sectionCurrent = sectionNext.interrupt().style("opacity", 0).style("z-index", 1);
+        sectionPrevious.interrupt().style("display", "none").style("z-index", 0).each(deactivate);
+        sectionPrevious = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 1);
+        sectionPrevious.transition().each("end", deactivate);
+        sectionCurrent = sectionNext.interrupt().style("opacity", 0).style("z-index", 2).each(activate);
         sectionCurrent.transition().style("opacity", 1);
         sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
-        dispatchEvent({type: "deactivate"}, i);
-        if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
       } else if (i1 === i - 1) { // rewind one
-        sectionNext.interrupt().style("display", "none");
-        sectionNext = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 0);
-        sectionCurrent = sectionPrevious.interrupt().style("opacity", 0).style("z-index", 1);
+        sectionNext.interrupt().style("display", "none").style("z-index", 0).each(deactivate);
+        sectionNext = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 1);
+        sectionNext.transition().each("end", deactivate);
+        sectionCurrent = sectionPrevious.interrupt().style("opacity", 0).style("z-index", 2).each(activate);
         sectionCurrent.transition().style("opacity", 1);
         sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
-        if (i < n - 1) dispatchEvent({type: "deactivate"}, i + 1);
-        dispatchEvent({type: "activate"}, i1);
       } else { // skip
-        sectionPrevious.style("display", "none");
-        sectionCurrent.style("display", "none");
-        sectionNext.style("display", "none");
-        sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
-        sectionCurrent = d3.select(section[0][i1]).interrupt().style("display", "block").style("opacity", 1).style("z-index", 1);
-        sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
-        if (!isNaN(i)) dispatchEvent({type: "deactivate"}, i + 1), dispatchEvent({type: "deactivate"}, i);
-        dispatchEvent({type: "activate"}, i1);
-        if (i1 < n - 1) dispatchEvent({type: "activate"}, i1 + 1);
+        sectionPrevious.style("display", "none").each(deactivate);
+        sectionCurrent.style("display", "none").each(deactivate);
+        sectionNext.style("display", "none").each(deactivate);
+        sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
+        sectionCurrent = d3.select(section[0][i1]).interrupt().style("display", "block").style("opacity", 1).style("z-index", 2).each(activate);
+        sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
       }
       i = i1;
     }
