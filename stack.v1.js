@@ -147,23 +147,23 @@ function stack() {
 
     if (i !== i1) {
       if (i1 === i + 1) { // advance one
-        sectionPrevious.interrupt().style("display", "none").style("z-index", 0).each(deactivate);
+        sectionPrevious.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionPrevious = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 1);
         sectionPrevious.transition().each("end", deactivate);
         sectionCurrent = sectionNext.interrupt().style("opacity", 0).style("z-index", 2).each(activate);
         sectionCurrent.transition().style("opacity", 1);
         sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
       } else if (i1 === i - 1) { // rewind one
-        sectionNext.interrupt().style("display", "none").style("z-index", 0).each(deactivate);
+        sectionNext.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionNext = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 1);
         sectionNext.transition().each("end", deactivate);
         sectionCurrent = sectionPrevious.interrupt().style("opacity", 0).style("z-index", 2).each(activate);
         sectionCurrent.transition().style("opacity", 1);
         sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
       } else { // skip
-        sectionPrevious.style("display", "none").each(deactivate);
-        sectionCurrent.style("display", "none").each(deactivate);
-        sectionNext.style("display", "none").each(deactivate);
+        sectionPrevious.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
+        sectionCurrent.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
+        sectionNext.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionCurrent = d3.select(section[0][i1]).interrupt().style("display", "block").style("opacity", 1).style("z-index", 2).each(activate);
         sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
