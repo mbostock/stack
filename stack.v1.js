@@ -35,6 +35,8 @@ function stack() {
     var background = d3.select("body").insert("div", "section")
         .style("background", "#000")
         .style("box-shadow", "0 8px 16px rgba(0,0,0,.3)")
+        .style("padding", "1px 0")
+        .style("margin-top", "-1px")
         .style("z-index", 0);
 
     section
