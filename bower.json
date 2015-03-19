@@ -1,0 +1,26 @@
+{
+  "name": "stack",
+  "version": "1.0.0",
+  "homepage": "http://mbostock.github.io/stack/",
+  "authors": [
+    "Mike Bostock <mike@ocks.org>"
+  ],
+  "description": "A presentation library with intuitive, scroll-based navigation.",
+  "main": "stack.v1.js",
+  "keywords": [
+    "interaction",
+    "design",
+    "slides"
+  ],
+  "license": "LICENSE.txt",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.4.13"
+  }
+}
