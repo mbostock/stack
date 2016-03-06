@@ -202,7 +202,7 @@ function stack() {
         ? Math.floor(y0 + (1 + scrollRatio) / 2)
         : Math.ceil(y0 - (1 - scrollRatio) / 2)) + delta));
 
-    d3.select(document.documentElement)
+    if (y0 !== yt) d3.select(document.documentElement)
         .interrupt()
       .transition()
         .duration(500)
