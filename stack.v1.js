@@ -44,7 +44,7 @@ function stack() {
         .style("opacity", 0)
         .style("z-index", 0);
 
-    var sectionAndBackground = d3.selectAll(section[0].concat(background.node()))
+    var sectionAndBackground = d3.selectAll(section.nodes().concat(background.node()))
         .style("position", "fixed")
         .style("left", 0)
         .style("top", 0)
@@ -62,8 +62,8 @@ function stack() {
         .style("background", "linear-gradient(to top,black,white)");
 
     var sectionPrevious = d3.select(null),
-        sectionCurrent = d3.select(section[0][0]),
-        sectionNext = d3.select(section[0][1]);
+        sectionCurrent = d3.select(section.nodes()[0]),
+        sectionNext = d3.select(section.nodes()[1]);
 
     d3.select(window)
         .on("resize.stack", resize)
@@ -78,10 +78,10 @@ function stack() {
   }
 
   function dispatchEvent(event, i) {
-    var target = section[0][i], sourceEvent = event.sourceEvent = d3.event;
+    var target = section.nodes()[i], sourceEvent = event.sourceEvent = d3.event;
     try {
       d3.event = event;
-      dispatch[event.type].call(target, target.__data__, i);
+      dispatch.call(event.type, target, target.__data__, i);
     } finally {
       d3.event = sourceEvent;
     }
@@ -151,24 +151,24 @@ function stack() {
       if (i1 === i + 1) { // advance one
         sectionPrevious.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionPrevious = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 1);
-        sectionPrevious.transition().each("end", deactivate);
+        sectionPrevious.transition().on("end", deactivate);
         sectionCurrent = sectionNext.interrupt().style("opacity", 0).style("z-index", 2).each(activate);
         sectionCurrent.transition().style("opacity", 1);
-        sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
+        sectionNext = d3.select(section.nodes()[i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
       } else if (i1 === i - 1) { // rewind one
         sectionNext.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionNext = sectionCurrent.interrupt().style("opacity", 1).style("z-index", 1);
-        sectionNext.transition().each("end", deactivate);
+        sectionNext.transition().on("end", deactivate);
         sectionCurrent = sectionPrevious.interrupt().style("opacity", 0).style("z-index", 2).each(activate);
         sectionCurrent.transition().style("opacity", 1);
-        sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
+        sectionPrevious = d3.select(section.nodes()[i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0);
       } else { // skip
         sectionPrevious.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionCurrent.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
         sectionNext.interrupt().style("display", "none").style("opacity", 0).style("z-index", 0).each(deactivate);
-        sectionPrevious = d3.select(section[0][i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
-        sectionCurrent = d3.select(section[0][i1]).interrupt().style("display", "block").style("opacity", 1).style("z-index", 2).each(activate);
-        sectionNext = d3.select(section[0][i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
+        sectionPrevious = d3.select(section.nodes()[i1 - 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
+        sectionCurrent = d3.select(section.nodes()[i1]).interrupt().style("display", "block").style("opacity", 1).style("z-index", 2).each(activate);
+        sectionNext = d3.select(section.nodes()[i1 + 1]).interrupt().style("display", "block").style("opacity", 0).style("z-index", 0).each(deactivate);
       }
       i = i1;
     }
@@ -209,7 +209,7 @@ function stack() {
           var i = d3.interpolateNumber(pageYOffset, yt * windowHeight);
           return function(t) { scrollTo(0, i(t)); };
         })
-        .each("end", function() { yt = NaN; });
+        .on("end", function() { yt = NaN; });
 
     d3.event.preventDefault();
   }
@@ -226,7 +226,10 @@ function stack() {
     return arguments.length ? (fontSize = +_, resize(), stack) : fontSize;
   };
 
-  d3.rebind(stack, dispatch, "on");
+  stack.on = function() {
+    var value = dispatch.on.apply(dispatch, arguments);
+    return value === dispatch ? stack : value;
+  };
 
   return stack;
 }
