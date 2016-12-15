@@ -111,8 +111,8 @@ a:hover {
   <p><a style="color:#777;text-decoration:none;" href="https://github.com/mbostock/stack">View source to get started.</a>
 </section>
 
-<script src="d3.v3.min.js"></script>
-<script src="stack.v1.min.js"></script>
+<script src="d3.v4.min.js"></script>
+<script src="stack.v1.js"></script>
 <script>
 
 var mystack = stack()
@@ -123,8 +123,8 @@ var section = d3.selectAll("section"),
     follow = d3.select("#follow"),
     followAnchor = d3.select("#follow-anchor"),
     lorenz = d3.select("#lorenz"),
-    followIndex = section[0].indexOf(follow.node()),
-    lorenzIndex = section[0].indexOf(lorenz.node());
+    followIndex = section.nodes().indexOf(follow.node()),
+    lorenzIndex = section.nodes().indexOf(lorenz.node());
 
 function refollow() {
   followAnchor.style("top", (followIndex + (1 - mystack.scrollRatio()) / 2 - d3.event.offset) * 100 + "%");
@@ -164,7 +164,7 @@ function startLorenz() {
       .attr("width", width)
       .attr("height", height);
 
-  var color = d3.scale.linear()
+  var color = d3.scaleLinear()
       .domain([0, 20, 30, 50])
       .range(["yellow", "orange", "brown", "purple"])
       .interpolate(d3.interpolateHcl);
