@@ -59,7 +59,7 @@ function stack() {
         .style("z-index", 10)
         .style("left", 0)
         .style("width", "3px")
-        .style("background", "linear-gradient(to top,black,white)");
+        .style("background", "linear-gradient(to top,rgba(255,255,255,0),white)");
 
     var sectionPrevious = d3.select(null),
         sectionCurrent = d3.select(section[0][0]),
